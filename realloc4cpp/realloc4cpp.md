@@ -8,15 +8,15 @@ It is a proposal to add a part of `realloc()` function behaivour to C++.
 
 C language defines following subroutines to allocate/deallocate heap memory:
 
-# `malloc()`/`calloc()`
-# `free()`
-# `realloc()`
+1. `malloc()`/`calloc()`
+2. `free()`
+3. `realloc()`
 
 C++ provides some counterparts:
 
-# `malloc()`/`calloc()` - `operator new`/`operator new[]`
-# `free()` - `operator delete/operator delete[]`
-# `realloc()` - ?
+1. `malloc()`/`calloc()` - `operator new`/`operator new[]`
+2. `free()` - `operator delete/operator delete[]`
+3. `realloc()` - ?
 
 As we can see, there is no counterpart for `realloc()`. And there is a solid
 reason for that: `realloc()` moves the memory block when it cannot be just
