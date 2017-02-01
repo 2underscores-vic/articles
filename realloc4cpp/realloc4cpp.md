@@ -46,9 +46,9 @@ struct realloc_allocator_traits : public std::allocator_traits<Alloc>
 It calls `a.resize_allocated(p, new_size)` if that expression is well-formed;
 otherwise, just returns `false`. Returned `true` means that:
 
-# The request was satisfied,
-# The memory block length was changed, and
-# It is at least `new_size` bytes length.
+1. The request was satisfied,
+2. The memory block length was changed, and
+3. It is at least `new_size` bytes length.
 
 The main difference with `realloc()`'s behaivour is that the allocator doesn't
 try to move any data, it is caller's responsibility, the allocator just reports
