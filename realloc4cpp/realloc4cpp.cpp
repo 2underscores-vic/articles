@@ -14,6 +14,7 @@ struct realloc_allocator_traits : public std::allocator_traits<Alloc>
     using size_type = typename std::allocator_traits<Alloc>::size_type;
 
     // `p` is a pointer to the memory block allocated before
+    // `cur_size` is a current size of the memory block
     // `new_size` is IN/OUT parameter:
     //      IN: requested size
     //     OUT: reallocated size, in case of success (true) returned
@@ -21,10 +22,10 @@ struct realloc_allocator_traits : public std::allocator_traits<Alloc>
     //     false - cannot satisfy this request
     //      true - memory block was enlarged/narrowed. In case of enlarge-request
     //             returned `new_size` can be equal or greater than requested
-    // ?? Do we need to pass also the current size as for deallocate()?
-    static bool resize_allocated(Alloc &a, pointer p, size_type &new_size)
+    static bool resize_allocated(
+        Alloc &a, pointer p, size_type cur_size, size_type &new_size)
     {
-        // TODO: Return a.resize_allocated(p, new_size) if defined
+        // TODO: Return a.resize_allocated(p, cur_size, new_size) if defined
         return false;
     }
 };
@@ -70,7 +71,8 @@ public:
     bool resize(size_type new_capacity)
     {
         auto n = new_capacity;
-        if(!alloc_traits::resize_allocated(*this, begin_, n)) return false;
+        if(!alloc_traits::resize_allocated(*this, begin_, capacity(), n))
+            return false;
         assert(new_capacity > capacity() ? n >= new_capacity : true);
         end_ = begin_ + n;
         return true;
@@ -176,7 +178,7 @@ void autogrow_array<T,A>::push_back(T v)
             buf.swap(new_buf);
         }
     }
-    *next = std::move(v);
+    buf.construct(next, std::move(v));
     ++next;
 }
 //----------------------------------------------------------------------------

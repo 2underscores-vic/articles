@@ -35,11 +35,10 @@ current technics.
 I propose to extend `std::allocator_traits` with additional function:
 
 ```C++
-// Extended allocator_traits interface
 template<class Alloc>
-struct realloc_allocator_traits : public std::allocator_traits<Alloc>
+struct std::allocator_traits
 {
-    static bool resize_allocated(Alloc &a, pointer p, size_type new_size);
+    static bool resize_allocated(Alloc &a, pointer p, size_type cur_size, size_type new_size);
 };
 ```
 
@@ -62,20 +61,83 @@ allocated block. It can be combined with the idea from the original proposal:
 
 ```C++
 template<class Alloc>
-struct realloc_allocator_traits : public std::allocator_traits<Alloc>
+struct std::allocator_traits
 {
-    static bool resize_allocated(Alloc &a, pointer p, size_type &new_size);
+    static bool resize_allocated(Alloc &a, pointer p, size_type cur_size, size_type &new_size);
 };
 ```
 
 Now `new_size` is an input/output parameter. In case of success the allocator
 can round up the requested size.
 
-## TODO
-
-- Do we need to pass also the current block size as for `allocator::deallocate()`?
-
 ## Usage (code)
 
 The sample of usage with vector-like container (including the extension from
 P0401) can be found [here](https://github.com/2underscores-vic/articles/blob/master/realloc4cpp/realloc4cpp.cpp).
+
+### Scenario 1: grow
+
+```C++
+void push_back(T v)
+{
+    if(next == buf.end()) // increase capacity first
+    {
+        if(buf.resize(new_capacity()))
+        {
+            // AWESOME!!! Buffer was enlarged!
+            // No need to move existing elements!
+        }
+        else // cannot extend, move the buffer as usual
+        {
+            // ...
+        }
+    }
+    construct(next, std::move(v));
+    ++next;
+}
+```
+
+### Scenario 2: shrink
+
+```C++
+void shrink_to_fit()
+{
+    if(size() == capacity()) return;
+    if(buf.resize(size()))
+    {
+        // AWESOME!!! Buffer was narrowed!
+        // No need to move existing elements!
+    }
+    else // cannot narrow, allocate new buffer
+    {
+        // ...
+    }
+}
+```
+
+In the both cases `buf.resize()` is a function defined as
+
+```C++
+bool resize(size_type desired_capacity)
+{
+    auto n = new_capacity;
+    if(!alloc_traits::resize_allocated(a, begin_, capacity(), n))
+        return false;
+    assert(new_capacity > capacity() ? n >= new_capacity : true);
+    end_ = begin_ + n;
+    return true;
+}
+```
+
+As it can be seen, in each scenario the code
+
+```C++
+allocate_new_buffer_and_move_data();
+```
+
+just becomes
+
+```C++
+if(!buf.resize(new_size()))
+    allocate_new_buffer_and_move_data();
+```
