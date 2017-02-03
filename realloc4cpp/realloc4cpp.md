@@ -30,6 +30,17 @@ guaranteed that every resize-request will be satisfied (it won't usually in
 fact). And what do we do in such case? All we do today! Just fall back to the
 current technics.
 
+One can argue that today system allocators don't support such feature. Well.
+
+1. At least custom allocators can benefit right now.
+2. The feature is completely optional, it doesn't affect existing allocators.
+   ("You don't pay for what you don't use").
+3. The system allocators are written in C. C users are happy with `realloc()`.
+   Nothing similar for C++ is offered because C++ don't use reallocation
+   in any form. `realloc()` is not appropriate for C++. So let's break the
+   vicious circle! System allocators can implement this interface in the
+   future.
+
 ## Proposal
 
 I propose to extend `std::allocator_traits` with additional function:
@@ -163,7 +174,7 @@ we usually don't request additional memory for `N` elements. Instead a value
 `M` >= `N` is calculated using one of known growth strategies (`new_capacity()`
 function in my sample code). `M` is a "preferred size" here. It is possible
 that the allocator doesn't have enough memory to expand the buffer for `M`
-elements but has for `N`. So it is a reasonble strategy to request both, and
+elements but has for `N`. So it is a reasonable strategy to request both, and
 the allocator can try to satisfy at least the "minimal size" request if the
 "preferred" one can't be satisfied. Of course, the allocator has the right
 to adjust/align the request and allocate slightly more, as before.
