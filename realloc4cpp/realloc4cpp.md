@@ -42,8 +42,8 @@ struct std::allocator_traits
 };
 ```
 
-It calls `a.resize_allocated(p, new_size)` if that expression is well-formed;
-otherwise, just returns `false`. Returned `true` means that:
+It calls `a.resize_allocated(p, cur_size, new_size)` if that expression is
+well-formed; otherwise, just returns `false`. Returned `true` means that:
 
 1. The request was satisfied,
 2. The memory block length was changed, and
@@ -148,4 +148,51 @@ just becomes
 ```C++
 if(!buf.resize(new_size()))
     allocate_new_buffer_and_move_data();
+```
+
+## Preferred and minimum requested size (Bonus #2)
+
+It was suggested by Fabio Fracassi in
+[std-proposals](https://groups.google.com/a/isocpp.org/d/msg/std-proposals/AeL6Q35t1j8/y869WOCRBAAJ)
+list to consider adding one feature from
+[N2045 - Improving STL Allocators](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n2045.html)
+proposal.
+
+When we need to add `N` elements to the full vector (`size() == capacity()`),
+we usually don't request additional memory for `N` elements. Instead a value
+`M` >= `N` is calculated using one of known growth strategies (`new_capacity()`
+function in my sample code). `M` is a "preferred size" here. It is possible
+that the allocator doesn't have enough memory to expand the buffer for `M`
+elements but has for `N`. So it is a reasonble strategy to request both, and
+the allocator can try to satisfy at least the "minimal size" request if the
+"preferred" one can't be satisfied. Of course, the allocator has the right
+to adjust/align the request and allocate slightly more, as before.
+
+The extension can have the following form (all in one):
+
+```C++
+template<class Alloc>
+struct std::allocator_traits
+{
+    static bool resize_allocated(Alloc &a, pointer p, size_type cur_size,
+        size_type &new_size);
+    static bool resize_allocated(Alloc &a, pointer p, size_type cur_size,
+        size_type &preferred_size, size_type min_size);
+};
+```
+
+The first function calls `a.resize_allocated(p, cur_size, new_size)` if
+well-formed; otherwise calls `resize_allocated(a, p, cur_size, new_size,
+new_size)`.
+
+And in my example for `push_back()` the call
+
+```C++
+buf.resize(new_capacity())
+```
+
+becomes
+
+```C++
+buf.resize(new_capacity(), 1)
 ```
