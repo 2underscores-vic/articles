@@ -70,6 +70,14 @@ struct std::allocator_traits
 Now `new_size` is an input/output parameter. In case of success the allocator
 can round up the requested size.
 
+## [N3495 - inplace realloc](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3495.htm)
+
+This paper proposes the similar idea but the function throws `std::bad_alloc()`
+when resizing is not supported by allocator. I don't find it practical. From
+the uses's point of view it usually worths nothing to now about the support
+in principle. The main thing which matters is the result of the resize attempt:
+success or not.
+
 ## Usage (code)
 
 The sample of usage with vector-like container (including the extension from
