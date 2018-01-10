@@ -1,3 +1,10 @@
+```
+Document number: P????R0
+Audience: Library Evolution Working Group
+Reply to: Victor Dyachenko <__vic@ngs.ru>
+Date: 2018-01-10
+```
+
 # `realloc()` for C++
 
 ## Abstract
@@ -85,7 +92,7 @@ can round up the requested size.
 
 This paper proposes the similar idea but the function throws `std::bad_alloc()`
 when resizing is not supported by allocator. I don't find it practical. From
-the uses's point of view it usually worths nothing to now about the support
+the user's point of view it usually worths nothing to know about the support
 in principle. The main thing which matters is the result of the resize attempt:
 success or not.
 
@@ -139,10 +146,10 @@ In the both cases `buf.resize()` is a function defined as
 ```C++
 bool resize(size_type desired_capacity)
 {
-    auto n = new_capacity;
+    auto n = desired_capacity;
     if(!alloc_traits::resize_allocated(a, begin_, capacity(), n))
         return false;
-    assert(new_capacity > capacity() ? n >= new_capacity : true);
+    assert(desired_capacity > capacity() ? n >= desired_capacity : true);
     end_ = begin_ + n;
     return true;
 }
