@@ -42,11 +42,12 @@ One can argue that today system allocators don't support such feature. Well.
 1. At least custom allocators can benefit right now.
 2. The feature is completely optional, it doesn't affect existing allocators.
    ("You don't pay for what you don't use").
-3. The system allocators are written in C. C users are happy with `realloc()`.
-   Nothing similar for C++ is offered because C++ don't use reallocation
-   in any form. `realloc()` is not appropriate for C++. So let's break the
-   vicious circle! System allocators can implement this interface in the
-   future.
+3. Support for the feature can be eventually added to the system allocators.
+   Today they don't provide any form of reallocation appropriate for C++
+   because C++ containers don't use reallocation anyway. C++ doesn't use
+   reallocation for containers because system allocators don't provide
+   appropriate support... Let's break the vicious circle by adding such
+   support to C++ containers first.
 
 ## Proposal
 
