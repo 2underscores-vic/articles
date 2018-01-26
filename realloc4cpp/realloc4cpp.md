@@ -26,11 +26,11 @@ C++ provides some counterparts:
 3. `realloc()` - ?
 
 As we can see, there is no counterpart for `realloc()`. And there is a solid
-reason for that: `realloc()` moves the memory block when it cannot be just
+reason for that: `realloc()` copies the memory block if it cannot be just
 expanded or shortened. It is unacceptable behaviour because objects in C++
 are not trivially copyable in general. Therefore `realloc()` cannot be used in
-generic code. But! The ability to resize already allocated memory block can
-be very useful. We could potentially get both performance and safety gain:
+generic code. However the ability to resize already allocated memory block can
+be very useful. We could potentially get performance and safety gain:
 no need to move the existing data (performance) and consequently no risk
 to cause an exception by throwing move-operation (safety). Yes, it cannot be
 guaranteed that every resize-request will be satisfied (it won't usually in
@@ -68,8 +68,8 @@ well-formed; otherwise, just returns `false`. Returned `true` means that:
 3. It is at least `new_size` bytes length.
 
 The main difference with `realloc()`'s behaivour is that the allocator doesn't
-try to move any data, it is caller's responsibility, the allocator just reports
-the success status.
+try to move any data, it is a caller's responsibility, the allocator just reports
+the success.
 
 ## [P0401 - Extensions to the Allocator interface](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0401r0.html) by Jonathan Wakely (Bonus)
 
