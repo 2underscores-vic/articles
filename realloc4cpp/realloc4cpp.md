@@ -9,7 +9,7 @@ Date: 2018-01-10
 
 ## Abstract
 
-It is a proposal to add a part of `realloc()` function behaivour to C++.
+It is a proposal to add a part of `realloc()` function behaviour to C++.
 
 ## Introduction
 
