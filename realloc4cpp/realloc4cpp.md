@@ -216,6 +216,13 @@ becomes
 buf.resize(new_capacity(), 1)
 ```
 
+## Acknowledgements
+
+Thanks to Antony Polukhin for representing this proposal in the Committee and
+general support.
+
+Thanks to Fabio Fracassi for his feedback on std-proposals forum.
+
 ## Annex A. Sample code
 
 ```C++
